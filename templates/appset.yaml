@@ -1,18 +1,33 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: wordsmith
+  name: wordsmith-{{ .Values.namespace }}
   namespace: argocd
 spec:
   generators:
-  - list:
-      elements:
-      - app: wordsmith-api
-      - app: wordsmith-web
-      - app: wordsmith-db
+  - matrix:
+      generators:
+        - list:
+            elements:
+            {{ if .Values.api.enabled }}
+            - app: wordsmith-api
+            {{ end }}
+            {{ if .Values.web.enabled }}
+            - app: wordsmith-web
+            {{ end }}
+            {{ if .Values.db.enabled }}
+            - app: wordsmith-db
+            {{ end }}
+        - list:
+            elements:
+            - namespace: {{ .Values.namespace }}
   template:
     metadata:
-      name: '{{"{{"}}app{{"}}"}}'
+      name: '{{"{{"}}namespace{{"}}"}}-{{"{{"}}app{{"}}"}}'
+      labels:
+        app: '{{"{{"}}namespace{{"}}"}}'
+      finalizers: 
+        - resources-finalizer.argocd.argoproj.io
     spec:
       project: "default"
       source:
@@ -21,7 +36,7 @@ spec:
         path: '.'
       destination:
         server: 'https://kubernetes.default.svc'
-        namespace: wordsmith
+        namespace: '{{"{{"}}namespace{{"}}"}}'
       syncPolicy:
         automated: 
           prune: true 

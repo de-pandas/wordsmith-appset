@@ -1,0 +1,8 @@
+namespace: alpha
+
+api:
+  enabled: true
+web:
+  enabled: true
+db:
+  enabled: true
