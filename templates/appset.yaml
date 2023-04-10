@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: wordsmith
+  namespace: argocd
+spec:
+  generators:
+  - list:
+      elements:
+      - app: wordsmith-api
+      - app: wordsmith-web
+      - app: wordsmith-db
+  template:
+    metadata:
+      name: '{{"{{"}}app{{"}}"}}'
+    spec:
+      project: "default"
+      source:
+        repoURL: git@gitlab.com:sandbox-aziz/{{"{{"}}app{{"}}"}}.git
+        targetRevision: HEAD
+        path: '.'
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: wordsmith
+      syncPolicy:
+        automated: 
+          prune: true 
+          selfHeal: true 
+          allowEmpty: false 
+        syncOptions:     
+        - Validate=false 
+        - CreateNamespace=true
+        - PrunePropagationPolicy=foreground 
+        - PruneLast=true 
+        retry:
+          limit: -1
+          backoff:
+            duration: 5s 
+            factor: 2
+            maxDuration: 3m 
+        revisionHistoryLimit: 10
