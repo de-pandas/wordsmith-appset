@@ -23,20 +23,20 @@ spec:
             - namespace: {{ .Values.namespace }}
   template:
     metadata:
-      name: '{{"{{"}}namespace{{"}}"}}-{{"{{"}}app{{"}}"}}'
+      name: '{{`{{namespace}}`}}-{{`{{app}}`}}'
       labels:
-        app: '{{"{{"}}namespace{{"}}"}}'
+        app: '{{`{{namespace}}`}}'
       finalizers: 
         - resources-finalizer.argocd.argoproj.io
     spec:
       project: "default"
       source:
-        repoURL: git@gitlab.com:sandbox-aziz/{{"{{"}}app{{"}}"}}.git
+        repoURL: git@gitlab.com:sandbox-aziz/{{`{{app}}`}}.git
         targetRevision: HEAD
         path: '.'
       destination:
         server: 'https://kubernetes.default.svc'
-        namespace: '{{"{{"}}namespace{{"}}"}}'
+        namespace: '{{`{{namespace}}`}}'
       syncPolicy:
         automated: 
           prune: true 
@@ -53,4 +53,4 @@ spec:
             duration: 5s 
             factor: 2
             maxDuration: 3m 
-        revisionHistoryLimit: 10
+      revisionHistoryLimit: 10
